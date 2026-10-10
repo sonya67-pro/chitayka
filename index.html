@@ -253,6 +253,71 @@
   }
   .word-big .hl { color: #d1748e; }
 
+  /* МАТЕМАТИКА: КАРТОЧКА С ПРИМЕРОМ */
+  .math-card {
+    background: linear-gradient(160deg, #ffffff, #f4f9fe);
+    border: 4px solid #ffffff;
+    border-radius: 28px;
+    padding: 32px 40px;
+    text-align: center;
+    box-shadow: 0 10px 0 #c8ddef, 0 15px 30px rgba(74,144,217,0.15);
+    position: relative;
+    min-width: 320px;
+    max-width: 520px;
+    transition: transform 0.2s;
+  }
+  .math-card:hover { transform: translateY(-3px); }
+  .math-card-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(160deg, #6da9e0, #4a90d9);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 900;
+    padding: 6px 20px;
+    border-radius: 14px;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 0 #357ab8;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .math-card-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .math-num {
+    font-size: 72px;
+    font-weight: 900;
+    color: #4a90d9;
+    text-shadow: 2px 2px 0 rgba(74,144,217,0.15);
+    min-width: 60px;
+    display: inline-block;
+  }
+  .math-op {
+    font-size: 56px;
+    font-weight: 900;
+    color: #ff9ec4;
+  }
+  .math-answer-box {
+    font-size: 72px;
+    font-weight: 900;
+    color: #d1748e;
+    width: 100px;
+    height: 100px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #ffe4ee, #ffc9dd);
+    border: 4px dashed #d1748e;
+    border-radius: 22px;
+  }
+
   /* МАТЕМАТИКА */
   .math-expression { font-size: 68px; font-weight: 900; color: #2c3e50; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: center; }
   .math-expression .box {
@@ -343,6 +408,10 @@
     .word-with-highlight { font-size: 40px; padding: 12px 18px; letter-spacing: 2px; }
     .word-big { font-size: 44px; letter-spacing: 4px; }
     .topic-card .topic-num { min-width: 44px; height: 44px; font-size: 20px; }
+    .math-card { padding: 24px 20px; min-width: 260px; }
+    .math-num { font-size: 52px; min-width: 44px; }
+    .math-op { font-size: 40px; }
+    .math-answer-box { width: 74px; height: 74px; font-size: 52px; }
   }
 </style>
 </head>
@@ -415,22 +484,4 @@
     <div class="screen" id="screen-win">
       <div class="win-screen">
         <div class="emoji">🏆</div>
-        <h2>Молодец!</h2>
-        <p style="font-size: 22px; color: #6b7280; margin: 12px 0; font-weight: 700;">
-          Результат: <b id="win-score" style="color: #4a90d9;">0</b> из <b id="win-total">0</b>
-        </p>
-        <p style="font-size: 16px; color: #888; font-weight: 700;" id="win-message"></p>
-        <div style="margin-top: 24px;">
-          <button class="btn-next" onclick="goToGames()">К играм</button>
-          <button class="btn-next secondary" onclick="restartGame()">Ещё раз</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-  <div class="signature">Разработала Шуинова Софья</div>
-</div>
-
-<script src="app.js"></script>
-</body>
-</html>
+        <h2>Молоде
