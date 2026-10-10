@@ -185,7 +185,6 @@ function playSound(type) {
   } catch(e) {}
 }
 
-// Универсальный вывод вопроса с кнопками
 function askSimple({ render, options, correct, afterAnswer }) {
   const gs = state.gameState;
   gs.locked = false;
@@ -232,7 +231,7 @@ function askSimple({ render, options, correct, afterAnswer }) {
 }
 
 // ============================================================
-// ДАННЫЕ ИГР
+// ДАННЫЕ
 // ============================================================
 const WORDS = [
   { w: 'МАМА', s: 2, first: 'М', pic: '👩' },
@@ -276,7 +275,7 @@ const PICTURE_WORDS = [
 ];
 
 // ============================================================
-// ТЕМЫ (структура: предмет → класс → массив тем)
+// ТЕМЫ
 // ============================================================
 const TOPICS = {
   literacy: {
@@ -297,7 +296,7 @@ const TOPICS = {
 
   russian: {
     1: [
-      { id: 'r1-letter-s', title: 'Буква С, звук [с] и [с\u2019]', desc: 'Где стоит звук в слове, твёрдый или мягкий', games: ['sPlaceInWord','sHardSoft','sWordsWithS'] }
+      { id: 'r1-letter-s', title: 'Буква С, звук [с] и [с\u2019]', desc: 'Где стоит звук, твёрдый или мягкий', games: ['sPlaceInWord','sHardSoft','sWordsWithS'] }
     ],
     2: [
       { id: 'r2-letter-s', title: 'Буква С, звук [с] и [с\u2019]', desc: 'Повторяем звуки и слова', games: ['sPlaceInWord','sHardSoft','sWordsWithS'] }
@@ -334,6 +333,7 @@ const TOPICS = {
 
   math: {
     1: [
+      { id: 'm1-cards',   title: 'Карточки с примерами', desc: 'Реши пример до 5', games: ['mathCards'] },
       { id: 'm1-numbers', title: 'Числа от 1 до 10', desc: 'Соседи и порядок чисел', games: ['numberNeighbors','prevNext','numberComposition'] },
       { id: 'm1-add5',    title: 'Сложение до 5', desc: 'Примеры на плюс', games: ['addUpTo5'] },
       { id: 'm1-sub5',    title: 'Вычитание до 5', desc: 'Примеры на минус', games: ['subUpTo5'] },
@@ -344,6 +344,7 @@ const TOPICS = {
       { id: 'm1-task',    title: 'Задачи по картинке', desc: 'Реши задачку', games: ['taskPicture'] }
     ],
     2: [
+      { id: 'm2-cards',   title: 'Карточки с примерами', desc: 'Реши пример до 10 и 20', games: ['mathCards'] },
       { id: 'm2-numbers', title: 'Числа до 100', desc: 'Соседи и состав', games: ['numberNeighbors','numberComposition'] },
       { id: 'm2-add',     title: 'Сложение до 100', desc: 'Примеры на плюс', games: ['addUpTo100'] },
       { id: 'm2-sub',     title: 'Вычитание до 100', desc: 'Примеры на минус', games: ['subUpTo100'] },
@@ -352,12 +353,14 @@ const TOPICS = {
       { id: 'm2-task',    title: 'Задачи по картинке', desc: 'Реши задачку', games: ['taskPicture'] }
     ],
     3: [
+      { id: 'm3-cards',  title: 'Карточки с примерами', desc: 'Примеры до 100 и умножение', games: ['mathCards'] },
       { id: 'm3-add',    title: 'Сложение до 100', desc: 'Примеры на плюс', games: ['addUpTo100'] },
       { id: 'm3-sub',    title: 'Вычитание до 100', desc: 'Примеры на минус', games: ['subUpTo100'] },
       { id: 'm3-shapes', title: 'Геометрические фигуры', desc: 'Узнай фигуру', games: ['shapes'] },
       { id: 'm3-task',   title: 'Задачи по картинке', desc: 'Реши задачку', games: ['taskPicture'] }
     ],
     4: [
+      { id: 'm4-cards',  title: 'Карточки с примерами', desc: 'Примеры до 1000, × и ÷', games: ['mathCards'] },
       { id: 'm4-add',    title: 'Сложение до 100', desc: 'Примеры на плюс', games: ['addUpTo100'] },
       { id: 'm4-sub',    title: 'Вычитание до 100', desc: 'Примеры на минус', games: ['subUpTo100'] },
       { id: 'm4-shapes', title: 'Геометрические фигуры', desc: 'Узнай фигуру', games: ['shapes'] }
@@ -458,13 +461,12 @@ const GAMES = {
     }
   },
 
-  // ---------- РУССКИЙ ЯЗЫК: буква С ----------
+  // ---------- РУССКИЙ ЯЗЫК ----------
   sPlaceInWord: {
     title: 'Где звук [с] или [с\u2019]?',
     emoji: '📍',
     desc: 'Начало, середина или конец',
     start() {
-      // Слова, где буква С в разных позициях
       const wordsData = [
         { word: 'СЫН',        place: 'начало'  },
         { word: 'СОК',        place: 'начало'  },
@@ -482,9 +484,8 @@ const GAMES = {
         { word: 'РИС',        place: 'конец'   },
         { word: 'УС',         place: 'конец'   },
         { word: 'ВЕС',        place: 'конец'   },
-        { word: 'ПЁС',        place: 'конец'   },
-        { word: 'ТАЗ',        place: 'нет'     }
-      ].filter(x => x.place !== 'нет');
+        { word: 'ПЁС',        place: 'конец'   }
+      ];
       const item = pick(wordsData);
       askSimple({
         render: () => `
@@ -537,10 +538,7 @@ const GAMES = {
     desc: 'Найди слово на букву С',
     start() {
       const withS = ['СЫН','СОК','САД','СУП','СОМ','САНКИ','СОБАКА','СОЛНЦЕ','СИЛА','СЕНО','САХАР','СОЛЬ','СТОЛ','СТУЛ','СНЕГ'];
-      const withoutS = ['КОТ','ДОМ','МАМА','ПАПА','ЛУНА','РЫБА','НОГА','РУКА','ГОРА','ВОДА','МЯЧ','СТОЛ' === 'СТОЛ' ? 'ДЫМ' : 'ДЫМ'];
-      const correct = pick(withS.filter(w => !w.includes('СТОЛ') || true));
-      const items = withS.concat(withoutS);
-      // Вопрос: "найди слово, которое начинается на С"
+      const withoutS = ['КОТ','ДОМ','МАМА','ПАПА','ЛУНА','РЫБА','НОГА','РУКА','ГОРА','ВОДА','МЯЧ','ДЫМ'];
       const correctWord = pick(withS.filter(w => w[0] === 'С'));
       const wrongs = shuffle(withoutS.filter(w => w[0] !== 'С')).slice(0, 3);
       const opts = shuffle([correctWord, ...wrongs]);
@@ -800,6 +798,93 @@ const GAMES = {
   },
 
   // ---------- МАТЕМАТИКА ----------
+  mathCards: {
+    title: 'Карточки с примерами',
+    emoji: '🃏',
+    desc: 'Реши пример на карточке',
+    start() {
+      const cls = state.classNum;
+      let max, allowMul = false, allowDiv = false;
+
+      if (cls === 1) {
+        max = 5;
+      } else if (cls === 2) {
+        max = Math.random() < 0.5 ? 10 : 20;
+      } else if (cls === 3) {
+        max = 100;
+        allowMul = true;
+      } else if (cls === 4) {
+        max = 1000;
+        allowMul = true;
+        allowDiv = true;
+      }
+
+      const types = ['add', 'sub'];
+      if (allowMul) types.push('mul');
+      if (allowDiv) types.push('div');
+      const type = pick(types);
+
+      let a, b, correct, symbol;
+
+      if (type === 'add') {
+        a = randInt(1, max - 1);
+        b = randInt(1, max - a);
+        correct = a + b;
+        symbol = '+';
+      } else if (type === 'sub') {
+        a = randInt(2, max);
+        b = randInt(1, a - 1);
+        correct = a - b;
+        symbol = '−';
+      } else if (type === 'mul') {
+        const multMax = cls === 3 ? 10 : 12;
+        a = randInt(2, multMax);
+        b = randInt(2, multMax);
+        correct = a * b;
+        symbol = '×';
+      } else {
+        const divMax = cls === 3 ? 10 : 12;
+        b = randInt(2, divMax);
+        correct = randInt(2, divMax);
+        a = b * correct;
+        symbol = '÷';
+      }
+
+      const opts = new Set([correct]);
+      let attempts = 0;
+      while (opts.size < 4 && attempts < 100) {
+        let wrong;
+        if (type === 'mul' || type === 'div') {
+          wrong = correct + randInt(-5, 5);
+          if (wrong === correct) wrong += 1;
+        } else {
+          wrong = correct + randInt(-3, 3);
+        }
+        if (wrong >= 0 && wrong !== correct) opts.add(wrong);
+        attempts++;
+      }
+      while (opts.size < 4) opts.add(correct + opts.size);
+
+      askSimple({
+        render: () => `
+          <div class="math-card">
+            <div class="math-card-badge">Пример</div>
+            <div class="math-card-body">
+              <span class="math-num">${a}</span>
+              <span class="math-op">${symbol}</span>
+              <span class="math-num">${b}</span>
+              <span class="math-op">=</span>
+              <span class="math-answer-box">?</span>
+            </div>
+            <p class="hint">Сколько получится?</p>
+          </div>
+        `,
+        options: [...opts],
+        correct
+      });
+    }
+  },
+
   numberNeighbors: {
     title: 'Соседи числа',
     emoji: '🏘️',
@@ -1169,14 +1254,14 @@ const GAMES = {
     desc: 'Дождь, снег, радуга',
     start() {
       const items = [
-        { emoji: '🌧️', name: 'Дождь', hint: 'Капли воды падают с неба' },
-        { emoji: '❄️', name: 'Снег', hint: 'Белые снежинки зимой' },
-        { emoji: '⛈️', name: 'Гроза', hint: 'Гром и молния' },
-        { emoji: '🌈', name: 'Радуга', hint: 'Разноцветная дуга после дождя' },
-        { emoji: '🌪️', name: 'Смерч', hint: 'Сильный вихрь' },
-        { emoji: '🌫️', name: 'Туман', hint: 'Белая дымка' },
-        { emoji: '☀️', name: 'Солнечно', hint: 'Ярко светит солнце' },
-        { emoji: '☁️', name: 'Облачно', hint: 'Небо в облаках' }
+        { emoji: '🌧️', name: 'Дождь' },
+        { emoji: '❄️', name: 'Снег' },
+        { emoji: '⛈️', name: 'Гроза' },
+        { emoji: '🌈', name: 'Радуга' },
+        { emoji: '🌪️', name: 'Смерч' },
+        { emoji: '🌫️', name: 'Туман' },
+        { emoji: '☀️', name: 'Солнечно' },
+        { emoji: '☁️', name: 'Облачно' }
       ];
       const item = pick(items);
       askSimple({
