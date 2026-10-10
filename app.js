@@ -588,7 +588,7 @@ const GAMES = {
     emoji: '🧩',
     desc: 'Из слогов составь слово',
     start() {
-      // Очередь без повторов: перемешиваем и берём по одному
+      // Очередь без повторов
       if (!state._buildWordsQueue || state._buildWordsQueue.length === 0) {
         state._buildWordsQueue = shuffle(WORDS.filter(w => w.s === 2));
       }
@@ -600,88 +600,134 @@ const GAMES = {
       const pool = shuffle([...syl, ...wrong]);
 
       const gs = state.gameState;
-      gs.locked = false;   // ← сбрасываем блокировку при загрузке нового слова
-      gs.placed = [];
-
       const area = document.getElementById('play-area');
-      area.innerHTML = `
-        <p class="hint" style="font-size:18px; color:#4a90d9;">💡 Подсказка: ${word.pic}</p>
-        <div class="word-slots" id="build-slots"></div>
-        <p class="hint">Нажми на слог в ячейке, чтобы вернуть обратно</p>
-        <div class="syllable-pool" id="build-pool"></div>
-        <button class="btn-next" id="build-check" style="display:none;">Проверить</button>
-      `;
+      area.innerHTML = '';
 
-      const slotsDiv = document.getElementById('build-slots');
-      syl.forEach((_, i) => {
-        const s = document.createElement('div');
-        s.className = 'slot';
-        s.dataset.index = i;
-        slotsDiv.appendChild(s);
+      // Локальные переменные для этого слова
+      let placed = [];
+      let answered = false;
+
+      // 1. Подсказка
+      const hintEl = document.createElement('p');
+      hintEl.className = 'hint';
+      hintEl.style.fontSize = '18px';
+      hintEl.style.color = '#4a90d9';
+      hintEl.textContent = '💡 Подсказка: ' + word.pic;
+      area.appendChild(hintEl);
+
+      // 2. Ячейки
+      const slotsDiv = document.createElement('div');
+      slotsDiv.className = 'word-slots';
+      area.appendChild(slotsDiv);
+
+      const slotEls = [];
+      syl.forEach(() => {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slotsDiv.appendChild(slot);
+        slotEls.push(slot);
       });
 
-      const poolDiv = document.getElementById('build-pool');
-      pool.forEach(s => {
+      // 3. Подсказка про отмену
+      const undoHint = document.createElement('p');
+      undoHint.className = 'hint';
+      undoHint.textContent = 'Нажми на слог в ячейке, чтобы вернуть обратно';
+      area.appendChild(undoHint);
+
+      // 4. Пул слогов
+      const poolDiv = document.createElement('div');
+      poolDiv.className = 'syllable-pool';
+      area.appendChild(poolDiv);
+
+      // 5. Кнопка
+      const actionBtn = document.createElement('button');
+      actionBtn.className = 'btn-next';
+      actionBtn.textContent = 'Проверить';
+      actionBtn.style.display = 'none';
+      area.appendChild(actionBtn);
+
+      function refreshSlots() {
+        slotEls.forEach((slot, i) => {
+          if (i < placed.length) {
+            slot.textContent = placed[i].syl;
+            slot.classList.add('filled');
+            slot.onclick = () => undoPlaced(i);
+          } else {
+            slot.textContent = '';
+            slot.classList.remove('filled');
+            slot.classList.remove('correct-slot');
+            slot.classList.remove('wrong-slot');
+            slot.onclick = null;
+          }
+        });
+        actionBtn.style.display =
+          (placed.length === syl.length && !answered) ? 'inline-block' : 'none';
+      }
+
+      function placeSyl(chipEl, sylText) {
+        if (answered) return;
+        if (chipEl.disabled) return;
+        if (placed.length >= syl.length) return;
+        chipEl.disabled = true;
+        placed.push({ syl: sylText, chipEl: chipEl });
+        refreshSlots();
+      }
+
+      function undoPlaced(index) {
+        if (answered) return;
+        const item = placed[index];
+        if (!item) return;
+        item.chipEl.disabled = false;
+        placed.splice(index, 1);
+        refreshSlots();
+      }
+
+      // Чипы слогов
+      pool.forEach(sylText => {
         const chip = document.createElement('button');
         chip.className = 'syllable-chip';
-        chip.textContent = s;
-        chip.onclick = () => placeSyl(chip, s);
+        chip.textContent = sylText;
+        chip.onclick = () => placeSyl(chip, sylText);
         poolDiv.appendChild(chip);
       });
 
-      function placeSyl(chip, s) {
-        if (chip.disabled) return;
-        if (gs.placed.length >= syl.length) return;
-        const idx = gs.placed.length;
-        const slot = slotsDiv.children[idx];
-        slot.textContent = s;
-        slot.classList.add('filled');
-        slot.onclick = () => undo(idx);
-        gs.placed.push({ s, chip });
-        chip.disabled = true;
-        if (gs.placed.length === syl.length) document.getElementById('build-check').style.display = 'inline-block';
-      }
-
-      function undo(idx) {
-        const item = gs.placed[idx];
-        if (!item) return;
-        item.chip.disabled = false;
-        gs.placed.splice(idx, 1);
-        [...slotsDiv.children].forEach((sl, i) => {
-          if (i < gs.placed.length) {
-            sl.textContent = gs.placed[i].s;
-            sl.classList.add('filled');
-            sl.onclick = () => undo(i);
-          } else {
-            sl.textContent = '';
-            sl.classList.remove('filled');
-            sl.onclick = null;
-          }
-        });
-        document.getElementById('build-check').style.display = 'none';
-      }
-
-      document.getElementById('build-check').onclick = () => {
-        if (gs.locked) return;
-        gs.locked = true;
+      // Кнопка "Проверить"
+      actionBtn.onclick = () => {
+        if (answered) return;
+        if (placed.length !== syl.length) return;
+        answered = true;
         gs.total++;
-        const placed = gs.placed.map(p => p.s).join('');
-        const correctStr = syl.join('');
-        if (placed === correctStr) {
-          [...slotsDiv.children].forEach(s => s.classList.add('correct-slot'));
-          gs.score++; playSound('correct');
+
+        const placedWord = placed.map(p => p.syl).join('');
+        const correctWord = syl.join('');
+        const isCorrect = placedWord === correctWord;
+
+        poolDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+        actionBtn.disabled = true;
+
+        if (isCorrect) {
+          slotEls.forEach(s => s.classList.add('correct-slot'));
+          gs.score++;
+          playSound('correct');
         } else {
-          [...slotsDiv.children].forEach(s => s.classList.add('wrong-slot'));
+          slotEls.forEach(s => s.classList.add('wrong-slot'));
           playSound('wrong');
           setTimeout(() => {
-            [...slotsDiv.children].forEach((s, i) => { s.textContent = syl[i]; });
+            slotEls.forEach((s, i) => { s.textContent = syl[i]; });
           }, 600);
         }
+
         updateProgress();
-        setTimeout(() => {
+
+        // Меняем кнопку на "Дальше →"
+        actionBtn.textContent = 'Дальше →';
+        actionBtn.disabled = false;
+        actionBtn.style.display = 'inline-block';
+
+        actionBtn.onclick = () => {
           if (gs.total >= TOTAL_QUESTIONS) return endGame();
           GAMES.buildWord.start();
-        }, 1600);
+        };
       };
     }
   },
