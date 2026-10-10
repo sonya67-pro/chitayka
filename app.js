@@ -600,6 +600,7 @@ const GAMES = {
       const pool = shuffle([...syl, ...wrong]);
 
       const gs = state.gameState;
+      gs.locked = false;   // ← сбрасываем блокировку при загрузке нового слова
       gs.placed = [];
 
       const area = document.getElementById('play-area');
