@@ -8,7 +8,8 @@ const state = {
   subject: null,
   topic: null,
   game: null,
-  gameState: null
+  gameState: null,
+  _buildWordsQueue: null
 };
 
 // ================== НАВИГАЦИЯ ==================
@@ -587,7 +588,12 @@ const GAMES = {
     emoji: '🧩',
     desc: 'Из слогов составь слово',
     start() {
-      const word = pick(WORDS.filter(w => w.s === 2));
+      // Очередь без повторов: перемешиваем и берём по одному
+      if (!state._buildWordsQueue || state._buildWordsQueue.length === 0) {
+        state._buildWordsQueue = shuffle(WORDS.filter(w => w.s === 2));
+      }
+      const word = state._buildWordsQueue.pop();
+
       const syl = splitIntoSyllables(word.w);
       const extra = ['МА','ПА','КА','ЗА','НА','РА','СА','ТА','ВА','ЛА','ДА','ГА','РО','ЛО','НО','КО','ВО','МУ','ХА','ЛИ','ЛУ','РЫ','ГО','ДУ','ЖИ','ШИ'];
       const wrong = shuffle(extra.filter(s => !syl.includes(s))).slice(0, 2);
@@ -1046,13 +1052,13 @@ const GAMES = {
     desc: 'Реши задачку',
     start() {
       const tasks = [
-        { pic: '🍎🍎🍎 ➕ 🍎🍎', q: 'Сколько яблок стало?', a: 5, expr: '3 + 2' },
-        { pic: '🐟🐟🐟🐟 ➖ 🐟', q: 'Сколько рыбок осталось?', a: 3, expr: '4 − 1' },
-        { pic: '🌷🌷 ➕ 🌷🌷🌷', q: 'Сколько цветов стало?', a: 5, expr: '2 + 3' },
-        { pic: '🐦🐦🐦🐦🐦 ➖ 🐦🐦', q: 'Сколько птиц осталось?', a: 3, expr: '5 − 2' },
-        { pic: '⭐ ➕ ⭐⭐⭐', q: 'Сколько звёзд стало?', a: 4, expr: '1 + 3' },
-        { pic: '🍬🍬🍬🍬 ➖ 🍬🍬', q: 'Сколько конфет осталось?', a: 2, expr: '4 − 2' },
-        { pic: '🐰🐰🐰 ➕ 🐰🐰🐰🐰', q: 'Сколько зайцев стало?', a: 7, expr: '3 + 4' }
+        { pic: '🍎🍎🍎 ➕ 🍎🍎', q: 'Сколько яблок стало?', a: 5 },
+        { pic: '🐟🐟🐟🐟 ➖ 🐟', q: 'Сколько рыбок осталось?', a: 3 },
+        { pic: '🌷🌷 ➕ 🌷🌷🌷', q: 'Сколько цветов стало?', a: 5 },
+        { pic: '🐦🐦🐦🐦🐦 ➖ 🐦🐦', q: 'Сколько птиц осталось?', a: 3 },
+        { pic: '⭐ ➕ ⭐⭐⭐', q: 'Сколько звёзд стало?', a: 4 },
+        { pic: '🍬🍬🍬🍬 ➖ 🍬🍬', q: 'Сколько конфет осталось?', a: 2 },
+        { pic: '🐰🐰🐰 ➕ 🐰🐰🐰🐰', q: 'Сколько зайцев стало?', a: 7 }
       ];
       const t = pick(tasks);
       const opts = new Set([t.a]);
@@ -1063,7 +1069,7 @@ const GAMES = {
       askSimple({
         render: () => `
           <div class="task-picture">${t.pic}</div>
-          <p class="task-question">${t.q}<br><span style="color:#4a90d9; font-size:18px;">${t.expr}</span></p>
+          <p class="task-question">${t.q}</p>
         `,
         options: [...opts],
         correct: t.a
